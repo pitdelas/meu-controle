@@ -1,0 +1,44 @@
+MEU CONTROLE - app de finanças para pequeno negócio
+====================================================
+
+O QUE TEM NESTA PASTA
+- meu-controle.html ....... o aplicativo. Dê dois cliques para abrir no navegador.
+- 1-banco-original.sql .... cria as tabelas no Supabase (já foi rodado).
+- 2-banco-correcoes.sql ... correções de segurança e regras (já foi rodado).
+- LEIA-ME.txt ............. este arquivo.
+
+ONDE FICAM OS DADOS
+Clientes, lançamentos e pagamentos ficam no Supabase (organização "meucontrole"),
+não no computador. Se o arquivo do app for perdido, os dados continuam lá:
+é só abrir o meu-controle.html de novo e entrar com seu e-mail e senha.
+
+COMO ABRIR EM OUTRO COMPUTADOR OU NAVEGADOR
+1. Abra o meu-controle.html.
+2. No Supabase, clique no botão verde "Connect" e copie:
+   - SUPABASE_URL (começa com https://)
+   - SUPABASE_PUBLISHABLE_KEY (começa com sb_publishable_)
+   NUNCA use a SUPABASE_SECRET_KEY.
+3. Cole nos dois campos do app e clique em "Salvar conexão".
+4. Entre com seu e-mail e senha.
+
+BACKUP DOS DADOS (faça toda semana)
+O plano grátis do Supabase não faz backup automático.
+No app, clique em "Baixar backup" (no alto, ao lado de Sair).
+Vai para a pasta Downloads uma planilha com 3 abas:
+Lançamentos, Pagamentos e Clientes. Guarde nesta pasta ou no Google Drive.
+
+PROJETO PAUSADO
+Se o app ficar 1 semana sem uso, o Supabase pausa o projeto.
+Os dados não somem: entre no supabase.com, abra o projeto
+e clique em "Resume project".
+
+OS ARQUIVOS .SQL
+Não rode de novo: o banco já está pronto. Se rodar, aparece o erro
+"already exists", que só quer dizer que já foi feito.
+Eles servem para recriar o banco do zero num projeto novo do Supabase
+(rodar primeiro o 1, depois o 2, no SQL Editor).
+
+PRÓXIMOS PASSOS POSSÍVEIS
+- Colocar o app no ar para usar no celular.
+- Desligar "Allow new users to sign up" no Supabase
+  (Authentication > Sign In / Providers) para só você entrar.
