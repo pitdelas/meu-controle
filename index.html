@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meu Controle</title>
+<meta name="theme-color" content="#ff4a1c">
+<meta name="apple-mobile-web-app-title" content="Meu Controle">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2216%22 fill=%22%23ff4a1c%22/%3E%3Ctext x=%2232%22 y=%2246%22 font-family=%22Arial%22 font-weight=%22900%22 font-size=%2238%22 fill=%22white%22 text-anchor=%22middle%22%3EM%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Sofia+Sans+Condensed:wght@700;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE: caderno de caixa do pequeno negócio, direto e calmo
+   IDEA: o livro-caixa — entra, sai, quem deve
+   PICTURE: o saldo do mês em número grande, com as barras de entrada e saída
+   COLOUR and TYPE: branco, preto, vermelhão #ff4a1c; Sofia Sans Condensed + Instrument Sans
+   LAYOUT: uma coluna de até 720px, abas fixas no alto, cartões arredondados */
+:root{color-scheme:light dark;--bg:light-dark(#fff,#120d0b);--ink:light-dark(#111,#f3efec);--mut:light-dark(#6b6b6b,#a59d98);--line:light-dark(#e6e4e1,#2c2522);--card:light-dark(#f6f5f3,#1c1613);--acc:#ff4a1c;--ok:light-dark(#11795a,#4cc79a);--bad:light-dark(#c62d0c,#ff7a57);--r:14px}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Instrument Sans",system-ui,sans-serif;overflow-x:clip}
+h1,h2,.big,.num{font-family:"Sofia Sans Condensed","Arial Narrow",sans-serif;font-weight:800;line-height:1.05}
+h1{font-size:32px;margin:0}h2{font-size:24px;margin:28px 0 12px}
+.wrap{max-width:720px;margin:0 auto;padding:16px max(4vw,16px) 64px}
+[hidden]{display:none!important}
+label{display:block;font-size:14px;font-weight:600;margin:14px 0 6px}
+input,select{width:100%;font:inherit;font-size:16px;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);min-height:48px}
+input:focus,select:focus,button:focus-visible,a:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button,.btn{font:inherit;font-weight:600;border:0;border-radius:12px;padding:12px 18px;min-height:46px;cursor:pointer;background:var(--ink);color:var(--bg);text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn2{background:var(--card);color:var(--ink);border:1.5px solid var(--line)}
+.acc{background:var(--acc);color:#fff}
+.lnk{background:none;color:var(--mut);padding:8px;min-height:0;font-weight:500;text-decoration:underline}
+.full{width:100%;margin-top:20px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 12px}
+.mut{color:var(--mut);font-size:14px}
+.card{background:var(--card);border-radius:var(--r);padding:16px;margin:10px 0}
+.bar{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar .wrap{padding-bottom:0;padding-top:12px}
+.tabs{display:flex;gap:4px;overflow-x:auto;margin-top:10px}
+.tabs button{background:none;color:var(--mut);border-radius:0;border-bottom:3px solid transparent;padding:10px 12px;flex:none}
+.tabs button.on{color:var(--ink);border-color:var(--acc)}
+.mesnav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 0}
+.mesnav button{width:46px;padding:0}
+.mesnav strong{font-size:18px}
+.hero{background:var(--ink);color:var(--bg);border-radius:var(--r);padding:20px}
+.hero .big{font-size:clamp(44px,12vw,64px);margin:4px 0 14px;white-space:nowrap}
+.hero .mut{color:inherit;opacity:.7}
+.meter{display:grid;grid-template-columns:7.5em minmax(0,1fr) auto;gap:10px;align-items:center;font-size:15px;margin:6px 0}
+.meter i{display:block;height:12px;border-radius:6px;background:currentColor;opacity:.9}
+.meter .t{height:12px;border-radius:6px;background:rgba(127,127,127,.25)}
+.meter b{white-space:nowrap;font-weight:600}
+.stats{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-top:10px}
+.stats .card{margin:0}.stats .num{font-size:28px;white-space:nowrap}
+.item{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+.item .grow{flex:1}
+.item .v{white-space:nowrap;font-weight:600;text-align:right}
+.in{color:var(--ok)}.out{color:var(--bad)}
+.x{background:none;color:var(--mut);padding:0;width:36px;min-height:36px;font-size:20px;flex:none}
+.tag{display:inline-block;font-size:13px;font-weight:600;padding:2px 10px;border-radius:99px;background:var(--line);white-space:nowrap}
+.tag.vencido{background:var(--bad);color:#fff}.tag.parcial{background:#ffd8cc;color:#6b1c07}
+.falta{font-size:30px}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--card);border-radius:12px;padding:4px;gap:4px}
+.seg button{background:none;color:var(--ink)}.seg button.on{background:var(--ink);color:var(--bg)}
+.chk{display:flex;gap:10px;align-items:center;margin-top:16px;font-weight:600}
+.chk input{width:22px;height:22px;min-height:0}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:grid;place-items:center;padding:16px;z-index:20}
+.modal>form{background:var(--bg);border-radius:18px;padding:20px;width:min(440px,100%);max-height:90vh;overflow:auto}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:12px;z-index:30;max-width:calc(100% - 32px);box-shadow:0 6px 24px rgba(0,0,0,.25)}
+.toast.erro{background:var(--bad);color:#fff}
+.vazio{text-align:center;color:var(--mut);padding:28px 8px}
+.pags{margin-top:8px;font-size:14px}.pags div{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.login{max-width:420px;margin:8vh auto 0}
+.logo{display:flex;align-items:center;gap:10px}
+.logo span{width:34px;height:34px;border-radius:10px;background:var(--acc);display:grid;place-items:center;color:#fff;font-family:"Sofia Sans Condensed",sans-serif;font-weight:800;font-size:22px}
+@media(prefers-reduced-motion:no-preference){.hero .big{animation:sobe .4s ease-out}@keyframes sobe{from{opacity:0;transform:translateY(6px)}}}
+@media(max-width:600px){.grid2{grid-template-columns:minmax(0,1fr)}.meter{grid-template-columns:6.5em minmax(0,1fr) auto}}
+</style>
+</head>
+<body>
+
+<div id="v-erro" class="wrap login" hidden>
+  <div class="logo"><span>M</span><h1>Meu Controle</h1></div>
+  <p>Não consegui carregar a biblioteca do Supabase. Confira se o computador está conectado à internet e recarregue a página (F5).</p>
+</div>
+
+<div id="v-setup" class="wrap login" hidden>
+  <div class="logo"><span>M</span><h1>Meu Controle</h1></div>
+  <p>Primeiro acesso: conecte o app ao seu banco no Supabase. Isso fica salvo só neste navegador.</p>
+  <form id="f-setup">
+    <label for="s-url">Project URL</label>
+    <input id="s-url" placeholder="https://xxxx.supabase.co" autocomplete="off" required>
+    <label for="s-key">Chave pública (publishable ou anon)</label>
+    <input id="s-key" placeholder="sb_publishable_... ou eyJ..." autocomplete="off" required>
+    <p class="mut">Nunca use a chave "secret" ou "service_role": ela ignora a segurança do banco.</p>
+    <button class="full acc">Salvar conexão</button>
+  </form>
+</div>
+
+<div id="v-auth" class="wrap login" hidden>
+  <div class="logo"><span>M</span><h1>Meu Controle</h1></div>
+  <p class="mut">Primeira vez aqui? Toque em <strong>Ainda não tenho conta</strong>, embaixo.</p>
+  <form id="f-auth">
+    <label for="a-email">E-mail</label>
+    <input id="a-email" type="email" autocomplete="email" required>
+    <label for="a-senha">Senha</label>
+    <input id="a-senha" type="password" autocomplete="current-password" minlength="6" required>
+    <button class="full acc" id="a-btn">Entrar</button>
+  </form>
+  <p class="row" style="justify-content:space-between">
+    <button class="lnk" id="a-troca" type="button">Ainda não tenho conta</button>
+    <button class="lnk" id="a-cfg" type="button" hidden>Trocar conexão</button>
+  </p>
+</div>
+
+<div id="v-app" hidden>
+  <div class="bar"><div class="wrap">
+    <div class="row" style="justify-content:space-between">
+      <div class="logo"><span>M</span><h1 style="font-size:26px">Meu Controle</h1></div>
+      <div class="row" style="gap:4px"><button class="btn2" id="backup" type="button" style="min-height:40px;padding:8px 14px;font-size:14px">Baixar backup</button><button class="lnk" id="sair" type="button">Sair</button></div>
+    </div>
+    <nav class="tabs" id="tabs">
+      <button data-aba="resumo" class="on">Resumo</button>
+      <button data-aba="receber">A receber</button>
+      <button data-aba="lancar">Lançar</button>
+      <button data-aba="clientes">Clientes</button>
+    </nav>
+  </div></div>
+
+  <main class="wrap">
+    <section id="t-resumo"></section>
+    <section id="t-receber" hidden></section>
+
+    <section id="t-lancar" hidden>
+      <h2>Novo lançamento</h2>
+      <div class="seg" id="seg">
+        <button type="button" data-tipo="in" class="on">Entrada (serviço)</button>
+        <button type="button" data-tipo="out">Despesa</button>
+      </div>
+      <form id="f-lanc">
+        <div id="so-in">
+          <label for="f-cli">Cliente</label>
+          <select id="f-cli"></select>
+        </div>
+        <label for="f-desc">Descrição</label>
+        <input id="f-desc" placeholder="Ex.: Instalação de chuveiro">
+        <div id="so-out" hidden>
+          <label for="f-cat">Categoria</label>
+          <input id="f-cat" list="cats" placeholder="Ex.: Material">
+          <datalist id="cats"><option>Material</option><option>Transporte</option><option>Ferramentas</option><option>Aluguel</option><option>Alimentação</option><option>Impostos (DAS)</option><option>Internet e telefone</option><option>Outros</option></datalist>
+        </div>
+        <div class="grid2">
+          <div><label for="f-valor">Valor (R$)</label><input id="f-valor" inputmode="decimal" placeholder="150,00" required></div>
+          <div><label for="f-data">Data</label><input id="f-data" type="date" required></div>
+        </div>
+        <div id="so-in2">
+          <label for="f-venc">Vencimento (quando o cliente vai pagar)</label>
+          <input id="f-venc" type="date">
+          <label class="chk"><input type="checkbox" id="f-pago"> Já recebi o valor todo</label>
+        </div>
+        <button class="full acc" id="f-btn">Salvar lançamento</button>
+      </form>
+    </section>
+
+    <section id="t-clientes" hidden></section>
+  </main>
+</div>
+
+<div id="modal" class="modal" hidden></div>
+<div id="toast" class="toast" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+{
+const $ = s => document.querySelector(s);
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const brl = n => Number(n || 0).toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+const pad = n => String(n).padStart(2, '0');
+const hoje = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+const dataBR = s => s ? s.split('-').reverse().join('/') : '';
+const mesLabel = m => { const [y, mm] = m.split('-'); const t = new Date(+y, +mm-1, 1).toLocaleDateString('pt-BR', {month:'long', year:'numeric'}); return t[0].toUpperCase() + t.slice(1); };
+const mudaMes = (m, d) => { const [y, mm] = m.split('-').map(Number); const t = new Date(y, mm-1+d, 1); return `${t.getFullYear()}-${pad(t.getMonth()+1)}`; };
+const parseValor = s => { s = String(s).replace(/[R$\s]/g, ''); if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.'); const n = Number(s); return isFinite(n) ? Math.round(n*100)/100 : NaN; };
+const soma = (arr, f) => arr.reduce((a, x) => a + Number(f(x) || 0), 0);
+
+const lerCfg = () => { try { return JSON.parse(localStorage.getItem('mc_cfg') || 'null'); } catch { return null; } };
+const gravarCfg = c => { try { c ? localStorage.setItem('mc_cfg', JSON.stringify(c)) : localStorage.removeItem('mc_cfg'); } catch {} };
+
+const CONEXAO = {url: 'https://gtzptkuvzkhuxukguyex.supabase.co', key: 'sb_publishable_p97D80lbCwye6pNAELCDCg_BG-s-kDV'};
+let sb = null, logado = false, criando = false;
+let st = {clients: [], entries: [], payments: []};
+let mes = hoje().slice(0, 7), aba = 'resumo', tipo = 'in';
+
+let tt;
+function toast(msg, erro) {
+  const t = $('#toast'); t.textContent = msg; t.className = 'toast' + (erro ? ' erro' : ''); t.hidden = false;
+  clearTimeout(tt); tt = setTimeout(() => t.hidden = true, erro ? 6000 : 2500);
+}
+function traduz(e) {
+  const m = (e && (e.message || e.error_description)) || String(e);
+  const mapa = [
+    ['Invalid login credentials', 'E-mail ou senha incorretos.'],
+    ['User already registered', 'Este e-mail já tem conta. Use "Entrar".'],
+    ['Password should be at least', 'A senha precisa ter pelo menos 6 caracteres.'],
+    ['Email not confirmed', 'Confirme o e-mail pelo link que o Supabase enviou e tente de novo.'],
+    ['Failed to fetch', 'Sem conexão com o Supabase. Confira a internet e os dados de conexão.'],
+    ['Invalid API key', 'Chave inválida. Clique em "Trocar conexão" e confira a chave.'],
+    ['rate limit', 'Muitas tentativas seguidas. Espere alguns minutos.'],
+  ];
+  for (const [k, v] of mapa) if (m.toLowerCase().includes(k.toLowerCase())) return v;
+  return m;
+}
+function mostrar(id) { for (const v of ['v-erro', 'v-setup', 'v-auth', 'v-app']) $('#' + v).hidden = v !== id; }
+function chaveSecreta(k) {
+  if (k.startsWith('sb_secret_')) return true;
+  try { const p = JSON.parse(atob(k.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))); return p.role === 'service_role'; } catch { return false; }
+}
+
+/* ---------- modal ---------- */
+function modal(html, aoEnviar) {
+  const m = $('#modal');
+  m.innerHTML = `<form>${html}<div class="row" style="justify-content:flex-end;margin-top:20px"><button type="button" class="btn2" data-fechar>Cancelar</button><button class="acc">Confirmar</button></div></form>`;
+  m.hidden = false;
+  const f = m.querySelector('form');
+  const foco = f.querySelector('input'); if (foco) foco.focus();
+  f.querySelector('[data-fechar]').onclick = () => { m.hidden = true; aoEnviar(null); };
+  f.onsubmit = async ev => {
+    ev.preventDefault();
+    const b = f.querySelector('.acc'); b.disabled = true;
+    const ok = await aoEnviar(f);
+    b.disabled = false;
+    if (ok !== false) m.hidden = true;
+  };
+}
+const confirmar = msg => new Promise(r => modal(`<p style="margin:0;font-size:17px">${esc(msg)}</p>`, f => r(!!f)));
+
+/* ---------- dados ---------- */
+async function carregar() {
+  const [c, e, p] = await Promise.all([
+    sb.from('clients').select('*').order('name'),
+    sb.from('entries_status').select('*').order('entry_date', {ascending:false}).order('created_at', {ascending:false}),
+    sb.from('payments').select('*').order('paid_on', {ascending:false}),
+  ]);
+  const err = c.error || e.error || p.error;
+  if (err) { toast(traduz(err), 1); return; }
+  st = {clients: c.data, entries: e.data, payments: p.data};
+  render();
+}
+const nomeCli = id => (st.clients.find(c => c.id === id) || {}).name || '';
+const abertos = () => st.entries.filter(e => e.type === 'in' && Number(e.falta) > 0);
+
+/* ---------- telas ---------- */
+function render() {
+  for (const b of document.querySelectorAll('#tabs button')) b.classList.toggle('on', b.dataset.aba === aba);
+  for (const s of ['resumo', 'receber', 'lancar', 'clientes']) $('#t-' + s).hidden = s !== aba;
+  if (aba === 'resumo') renderResumo();
+  if (aba === 'receber') renderReceber();
+  if (aba === 'lancar') renderLancar();
+  if (aba === 'clientes') renderClientes();
+}
+
+function renderResumo() {
+  const doMes = st.entries.filter(e => e.entry_date.startsWith(mes));
+  const recebido = soma(st.payments.filter(p => p.paid_on.startsWith(mes)), p => p.amount);
+  const despesas = soma(doMes.filter(e => e.type === 'out'), e => e.total);
+  const vendido = soma(doMes.filter(e => e.type === 'in'), e => e.total);
+  const ab = abertos();
+  const aReceber = soma(ab, e => e.falta);
+  const vencido = soma(ab.filter(e => e.status === 'vencido'), e => e.falta);
+  const saldo = recebido - despesas;
+  const max = Math.max(recebido, despesas, 1);
+
+  const cats = {};
+  for (const e of doMes.filter(e => e.type === 'out')) { const k = e.category || 'Sem categoria'; cats[k] = (cats[k] || 0) + Number(e.total); }
+  const catList = Object.entries(cats).sort((a, b) => b[1] - a[1]);
+  const catMax = catList.length ? catList[0][1] : 1;
+
+  $('#t-resumo').innerHTML = `
+    <div class="mesnav"><button class="btn2" data-act="mes" data-d="-1" aria-label="Mês anterior">‹</button><strong>${esc(mesLabel(mes))}</strong><button class="btn2" data-act="mes" data-d="1" aria-label="Próximo mês">›</button></div>
+    <div class="hero">
+      <div class="mut">Saldo do mês (recebido − despesas)</div>
+      <div class="big">${esc(brl(saldo))}</div>
+      <div class="meter"><span>Recebido</span><div class="t"><i style="width:${recebido/max*100}%;color:#4cc79a"></i></div><b>${esc(brl(recebido))}</b></div>
+      <div class="meter"><span>Despesas</span><div class="t"><i style="width:${despesas/max*100}%;color:var(--acc)"></i></div><b>${esc(brl(despesas))}</b></div>
+    </div>
+    <div class="stats">
+      <div class="card"><div class="mut">Serviços vendidos no mês</div><div class="num">${esc(brl(vendido))}</div></div>
+      <div class="card"><div class="mut">A receber (todos os meses)</div><div class="num">${esc(brl(aReceber))}</div>${vencido > 0 ? `<div class="out" style="font-size:14px;font-weight:600">${esc(brl(vencido))} vencido</div>` : ''}</div>
+    </div>
+    ${catList.length ? `<h2>Despesas por categoria</h2>${catList.map(([k, v]) => `<div class="meter"><span>${esc(k)}</span><div class="t"><i style="width:${v/catMax*100}%;color:var(--acc)"></i></div><b>${esc(brl(v))}</b></div>`).join('')}` : ''}
+    <h2>Lançamentos do mês</h2>
+    ${doMes.length ? doMes.map(e => `
+      <div class="item">
+        <div class="grow"><div><strong>${esc(e.description || (e.type === 'in' ? 'Serviço' : 'Despesa'))}</strong></div>
+        <div class="mut">${esc(dataBR(e.entry_date))} · ${e.type === 'in' ? esc(nomeCli(e.client_id) || 'Sem cliente') + (e.status ? ' · ' + esc(e.status) : '') : esc(e.category || 'Despesa')}</div></div>
+        <div class="v ${e.type}">${e.type === 'in' ? '+' : '−'} ${esc(brl(e.total))}</div>
+        <button class="x" data-act="delEntry" data-id="${esc(e.id)}" aria-label="Apagar lançamento">×</button>
+      </div>`).join('') : '<div class="vazio">Nenhum lançamento neste mês. Use a aba "Lançar".</div>'}`;
+}
+
+function linkZap(cli, e) {
+  if (!cli || !cli.phone) return '';
+  let d = cli.phone.replace(/\D/g, '');
+  if (d.length === 10 || d.length === 11) d = '55' + d;
+  if (d.length < 12) return '';
+  const msg = `Olá, ${cli.name}! Passando para lembrar do pagamento${e.description ? ' de "' + e.description + '"' : ''}, no valor de ${brl(e.falta)}. Obrigado!`;
+  return `<a class="btn btn2" href="https://wa.me/${esc(d)}?text=${esc(encodeURIComponent(msg))}" target="_blank" rel="noopener">Cobrar no WhatsApp</a>`;
+}
+
+function renderReceber() {
+  const ab = abertos().sort((a, b) => (a.due_date || '9999') < (b.due_date || '9999') ? -1 : 1);
+  $('#t-receber').innerHTML = `<h2>Quem está me devendo</h2>
+    <p class="mut">Total em aberto: <strong>${esc(brl(soma(ab, e => e.falta)))}</strong></p>
+    ${ab.length ? ab.map(e => {
+      const cli = st.clients.find(c => c.id === e.client_id);
+      const pags = st.payments.filter(p => p.entry_id === e.id);
+      return `<div class="card">
+        <div class="row" style="justify-content:space-between;align-items:flex-start">
+          <div class="grow"><strong>${esc(cli ? cli.name : 'Sem cliente')}</strong><div class="mut">${esc(e.description || 'Serviço')} · ${esc(dataBR(e.entry_date))}</div></div>
+          <span class="tag ${esc(e.status)}">${esc(e.status)}</span>
+        </div>
+        <div class="num falta">${esc(brl(e.falta))}</div>
+        <div class="mut">Total ${esc(brl(e.total))} · já pago ${esc(brl(e.pago))}${e.due_date ? ' · vence ' + esc(dataBR(e.due_date)) : ''}</div>
+        ${pags.length ? `<div class="pags">${pags.map(p => `<div><span>${esc(dataBR(p.paid_on))} · ${esc(brl(p.amount))}</span><button class="x" data-act="delPag" data-id="${esc(p.id)}" aria-label="Apagar pagamento">×</button></div>`).join('')}</div>` : ''}
+        <div class="row" style="margin-top:12px"><button class="acc" data-act="receber" data-id="${esc(e.id)}">Registrar pagamento</button>${linkZap(cli, e)}</div>
+      </div>`;
+    }).join('') : '<div class="vazio">Ninguém está devendo. 🎉</div>'}`;
+}
+
+function renderLancar() {
+  const sel = $('#f-cli'), atual = sel.value;
+  sel.innerHTML = '<option value="">Sem cliente</option>' + st.clients.map(c => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('') + '<option value="__novo">+ Novo cliente…</option>';
+  if (st.clients.some(c => c.id === atual)) sel.value = atual;
+  if (!$('#f-data').value) $('#f-data').value = hoje();
+  for (const b of document.querySelectorAll('#seg button')) b.classList.toggle('on', b.dataset.tipo === tipo);
+  $('#so-in').hidden = $('#so-in2').hidden = tipo !== 'in';
+  $('#so-out').hidden = tipo !== 'out';
+  $('#f-desc').placeholder = tipo === 'in' ? 'Ex.: Instalação de chuveiro' : 'Ex.: Fios e disjuntores';
+}
+
+function renderClientes() {
+  const dev = {};
+  for (const e of abertos()) if (e.client_id) dev[e.client_id] = (dev[e.client_id] || 0) + Number(e.falta);
+  $('#t-clientes').innerHTML = `<div class="row" style="justify-content:space-between"><h2>Clientes</h2><button class="acc" data-act="novoCli">+ Novo cliente</button></div>
+    ${st.clients.length ? st.clients.map(c => `
+      <div class="item">
+        <div class="grow"><strong>${esc(c.name)}</strong><div class="mut">${esc(c.phone || 'Sem telefone')}</div></div>
+        <div class="v ${dev[c.id] ? 'out' : ''}">${dev[c.id] ? 'deve ' + esc(brl(dev[c.id])) : 'em dia'}</div>
+        <button class="x" data-act="delCli" data-id="${esc(c.id)}" aria-label="Apagar cliente">×</button>
+      </div>`).join('') : '<div class="vazio">Nenhum cliente ainda.</div>'}`;
+}
+
+/* ---------- ações ---------- */
+function novoCliente(depois) {
+  modal(`<h2 style="margin-top:0">Novo cliente</h2>
+    <label for="m-nome">Nome</label><input id="m-nome" required>
+    <label for="m-tel">Telefone / WhatsApp (com DDD)</label><input id="m-tel" inputmode="tel" placeholder="(11) 91234-5678">`,
+    async f => {
+      if (!f) { depois && depois(null); return; }
+      const {data, error} = await sb.from('clients').insert({name: f.querySelector('#m-nome').value.trim(), phone: f.querySelector('#m-tel').value.trim() || null}).select().single();
+      if (error) { toast(traduz(error), 1); return false; }
+      st.clients.push(data); st.clients.sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
+      toast('Cliente salvo');
+      depois ? depois(data) : render();
+    });
+}
+
+const acoes = {
+  mes: b => { mes = mudaMes(mes, +b.dataset.d); render(); },
+  novoCli: () => novoCliente(),
+  receber: b => {
+    const e = st.entries.find(x => x.id === b.dataset.id); if (!e) return;
+    modal(`<h2 style="margin-top:0">Registrar pagamento</h2><p class="mut">${esc(nomeCli(e.client_id) || 'Sem cliente')} · falta ${esc(brl(e.falta))}</p>
+      <label for="m-val">Valor recebido (R$)</label><input id="m-val" inputmode="decimal" value="${esc(String(e.falta).replace('.', ','))}" required>
+      <label for="m-dt">Data</label><input id="m-dt" type="date" value="${hoje()}" required>`,
+      async f => {
+        if (!f) return;
+        const v = parseValor(f.querySelector('#m-val').value);
+        if (!(v > 0)) { toast('Digite um valor maior que zero', 1); return false; }
+        const {error} = await sb.from('payments').insert({entry_id: e.id, amount: v, paid_on: f.querySelector('#m-dt').value});
+        if (error) { toast(traduz(error), 1); return false; }
+        toast('Pagamento registrado'); await carregar();
+      });
+  },
+  delPag: async b => { if (!await confirmar('Apagar este pagamento?')) return; const {error} = await sb.from('payments').delete().eq('id', b.dataset.id); if (error) return toast(traduz(error), 1); toast('Pagamento apagado'); carregar(); },
+  delEntry: async b => { if (!await confirmar('Apagar este lançamento? Os pagamentos dele também serão apagados.')) return; const {error} = await sb.from('entries').delete().eq('id', b.dataset.id); if (error) return toast(traduz(error), 1); toast('Lançamento apagado'); carregar(); },
+  delCli: async b => { if (!await confirmar('Apagar este cliente? Os lançamentos dele continuam, mas ficam sem cliente.')) return; const {error} = await sb.from('clients').delete().eq('id', b.dataset.id); if (error) return toast(traduz(error), 1); toast('Cliente apagado'); carregar(); },
+};
+document.addEventListener('click', ev => {
+  const b = ev.target.closest('[data-act]'); if (b && acoes[b.dataset.act]) acoes[b.dataset.act](b);
+  const t = ev.target.closest('#tabs button'); if (t) { aba = t.dataset.aba; render(); }
+  const s = ev.target.closest('#seg button'); if (s) { tipo = s.dataset.tipo; renderLancar(); }
+});
+
+$('#f-cli').addEventListener('change', ev => {
+  if (ev.target.value !== '__novo') return;
+  ev.target.value = '';
+  novoCliente(c => { renderLancar(); if (c) $('#f-cli').value = c.id; });
+});
+
+$('#f-lanc').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const valor = parseValor($('#f-valor').value);
+  if (!(valor > 0)) return toast('Digite um valor maior que zero', 1);
+  const row = {type: tipo, total: valor, entry_date: $('#f-data').value || hoje(), description: $('#f-desc').value.trim() || null};
+  if (tipo === 'in') { row.client_id = $('#f-cli').value || null; row.due_date = $('#f-venc').value || null; }
+  else row.category = $('#f-cat').value.trim() || null;
+  const btn = $('#f-btn'); btn.disabled = true;
+  const {data, error} = await sb.from('entries').insert(row).select('id').single();
+  if (error) { btn.disabled = false; return toast(traduz(error), 1); }
+  if (tipo === 'in' && $('#f-pago').checked) {
+    const r = await sb.from('payments').insert({entry_id: data.id, amount: valor, paid_on: row.entry_date});
+    if (r.error) toast('Lançado, mas o pagamento não foi salvo: ' + traduz(r.error), 1);
+  }
+  btn.disabled = false;
+  for (const id of ['#f-desc', '#f-valor', '#f-venc', '#f-cat']) $(id).value = '';
+  $('#f-pago').checked = false;
+  toast(tipo === 'in' ? 'Entrada salva' : 'Despesa salva');
+  await carregar();
+});
+
+/* ---------- conexão e login ---------- */
+$('#f-setup').addEventListener('submit', ev => {
+  ev.preventDefault();
+  const url = $('#s-url').value.trim().replace(/\/+$/, '').replace(/\/rest\/v1$/, '');
+  const key = $('#s-key').value.trim();
+  if (!/^https:\/\/.+/.test(url)) return toast('A Project URL começa com https://', 1);
+  if (chaveSecreta(key)) return toast('Essa é a chave secreta! Use a chave pública (publishable ou anon).', 1);
+  gravarCfg({url, key});
+  location.reload();
+});
+$('#a-cfg').onclick = () => { gravarCfg(null); location.reload(); };
+$('#a-troca').onclick = () => {
+  criando = !criando;
+  $('#a-btn').textContent = criando ? 'Criar conta' : 'Entrar';
+  $('#a-troca').textContent = criando ? 'Já tenho conta' : 'Ainda não tenho conta';
+  $('#a-senha').autocomplete = criando ? 'new-password' : 'current-password';
+};
+$('#f-auth').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const email = $('#a-email').value.trim(), password = $('#a-senha').value;
+  const btn = $('#a-btn'); btn.disabled = true;
+  const {data, error} = criando ? await sb.auth.signUp({email, password}) : await sb.auth.signInWithPassword({email, password});
+  btn.disabled = false;
+  if (error) return toast(traduz(error), 1);
+  if (criando && !data.session) toast('Conta criada! Confirme pelo link enviado ao seu e-mail e depois entre.');
+});
+
+/* ---------- backup ---------- */
+function baixarArquivo(conteudo, nome, tipo) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([conteudo], {type: tipo}));
+  a.download = nome; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+const carregarScript = src => new Promise(ok => { const s = document.createElement('script'); s.src = src; s.onload = () => ok(true); s.onerror = () => ok(false); document.head.appendChild(s); });
+$('#backup').onclick = async () => {
+  const btn = $('#backup'); btn.disabled = true; btn.textContent = 'Gerando…';
+  await carregar();
+  const cli = id => st.clients.find(c => c.id === id) || {};
+  const lanc = st.entries.slice().sort((a, b) => a.entry_date < b.entry_date ? -1 : 1).map(e => ({
+    'Data': dataBR(e.entry_date), 'Tipo': e.type === 'in' ? 'Entrada' : 'Despesa', 'Cliente': cli(e.client_id).name || '',
+    'Descrição': e.description || '', 'Categoria': e.category || '', 'Total': Number(e.total),
+    'Pago': e.type === 'in' ? Number(e.pago) : '', 'Falta': e.type === 'in' ? Number(e.falta) : '',
+    'Situação': e.status || '', 'Vencimento': dataBR(e.due_date)}));
+  const pags = st.payments.slice().sort((a, b) => a.paid_on < b.paid_on ? -1 : 1).map(p => {
+    const e = st.entries.find(x => x.id === p.entry_id) || {};
+    return {'Data': dataBR(p.paid_on), 'Cliente': cli(e.client_id).name || '', 'Serviço': e.description || '', 'Valor': Number(p.amount)};
+  });
+  const clis = st.clients.map(c => ({'Nome': c.name, 'Telefone': c.phone || ''}));
+  const nome = 'meu-controle-backup-' + hoje();
+  if (window.XLSX || await carregarScript('https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js')) {
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(lanc.length ? lanc : [{'Data': ''}]), 'Lançamentos');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(pags.length ? pags : [{'Data': ''}]), 'Pagamentos');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(clis.length ? clis : [{'Nome': ''}]), 'Clientes');
+    XLSX.writeFile(wb, nome + '.xlsx');
+  } else {
+    const cel = v => typeof v === 'number' ? String(v).replace('.', ',') : '"' + String(v).replace(/"/g, '""') + '"';
+    const csv = arr => arr.length ? [Object.keys(arr[0]).join(';'), ...arr.map(r => Object.values(r).map(cel).join(';'))].join('\r\n') : '';
+    baixarArquivo('\ufeff' + csv(lanc) + '\r\n\r\nPAGAMENTOS\r\n' + csv(pags) + '\r\n\r\nCLIENTES\r\n' + csv(clis), nome + '.csv', 'text/csv');
+  }
+  btn.disabled = false; btn.textContent = 'Baixar backup';
+  toast('Backup salvo na pasta Downloads');
+};
+
+$('#sair').onclick = () => sb.auth.signOut();
+
+function iniciar() {
+  if (!window.supabase) return mostrar('v-erro');
+  const c = lerCfg() || CONEXAO;
+  sb = window.supabase.createClient(c.url, c.key);
+  sb.auth.onAuthStateChange((evento, sessao) => {
+    if (sessao && !logado) { logado = true; mostrar('v-app'); setTimeout(carregar, 0); }
+    else if (!sessao) { logado = false; st = {clients: [], entries: [], payments: []}; mostrar('v-auth'); }
+  });
+}
+iniciar();
+}
+</script>
+</body>
+</html>
